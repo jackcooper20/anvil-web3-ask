@@ -1,28 +1,33 @@
 import { ChildProcess, spawn } from 'child_process';
 import { Socket } from 'net';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 interface AnvilConfig {
     host?: string;
     port?: string;
-    [key: string]: string | boolean | undefined;
+    accounts?: number;
+    blockTime?: number;
+    balance?: string;
+    forkUrl?: string;
+    forkBlockNumber?: number;
+    [key: string]: string | number | boolean | undefined;
 }
 
 export class AnvilInstance {
-    private config: AnvilConfig;
-    private cliConfig: string[];
-    private anvilProcess: ChildProcess;
+    private readonly config: AnvilConfig;
+    private readonly cliConfig: string[];
+    private readonly anvilProcess: ChildProcess;
     private readonly livelinessTimeout: number;
 
-    private defaultConfigSetters: { [key: string]: () => string } = {
+    private readonly defaultConfigSetters: Record<string, () => string> = {
         host: () => "127.0.0.1",
         port: () => AnvilInstance.findFreePort(),
     };
 
     constructor(
         config: AnvilConfig = {},
-        suppressAnvilOutput: boolean = true,
-        livelinessTimeout: number = 60
+        suppressAnvilOutput = true,
+        livelinessTimeout = 60
     ) {
         this.config = {};
         this.cliConfig = [];
@@ -60,19 +65,19 @@ export class AnvilInstance {
         this.waitUntilLive();
     }
 
-    get url(): string {
+    public get url(): string {
         return `${this.config.host}:${this.config.port}`;
     }
 
-    get httpUrl(): string {
+    public get httpUrl(): string {
         return `http://${this.url}`;
     }
 
-    get wsUrl(): string {
+    public get wsUrl(): string {
         return `ws://${this.url}`;
     }
 
-    kill(): void {
+    public kill(): void {
         this.anvilProcess.kill();
     }
 
@@ -93,7 +98,7 @@ export class AnvilInstance {
 
         while (Date.now() < endTime) {
             try {
-                const response = await axios.post(
+                const response: AxiosResponse = await axios.post(
                     this.httpUrl,
                     {
                         method: "web3_clientVersion",
