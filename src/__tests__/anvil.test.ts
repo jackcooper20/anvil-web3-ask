@@ -53,4 +53,56 @@ describe('Anvil', () => {
             expect.any(Function)
         );
     });
+
+    test('getAutoMine returns the correct value', async () => {
+        const result = await anvil.getAutoMine();
+    
+        expect(result).toBe(true);
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'anvil_getAutomine', params: [] }),
+            expect.any(Function)
+        );
+    });
+    
+    test('setAutoMine calls the correct RPC method', async () => {
+        const enableAutomine = false;
+        await anvil.setAutoMine(enableAutomine);
+    
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'evm_setAutomine', params: [enableAutomine] }),
+            expect.any(Function)
+        );
+    });
+    
+    test('mine calls the correct RPC method', async () => {
+        const numBlocks = 5;
+        const interval = 10;
+        await anvil.mine(numBlocks, interval);
+    
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'anvil_mine', params: [numBlocks, interval] }),
+            expect.any(Function)
+        );
+    });
+    
+    test('setIntervalMining calls the correct RPC method', async () => {
+        const secs = 15;
+        await anvil.setIntervalMining(secs);
+    
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'evm_setIntervalMining', params: [secs] }),
+            expect.any(Function)
+        );
+    });
+    
+    test('dropTransaction calls the correct RPC method and returns result', async () => {
+        const txHash = '0xabcdef';
+        const result = await anvil.dropTransaction(txHash);
+    
+        expect(result).toBe(txHash);
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'anvil_dropTransaction', params: [txHash] }),
+            expect.any(Function)
+        );
+    });
 });
