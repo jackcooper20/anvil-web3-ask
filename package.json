@@ -1,22 +1,40 @@
 {
-  "name": "anvil-wrapper",
+  "name": "anvil-web3",
   "version": "1.0.0",
-  "description": "A TypeScript wrapper for Anvil Ethereum node",
+  "description": "Web3 wrapper for Anvil Ethereum node",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "npm run build"
   },
   "dependencies": {
-    "axios": "^1.6.7"
+    "axios": "^1.6.0",
+    "web3": "^4.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.12",
-    "@types/node": "^20.11.24",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.2",
-    "typescript": "^5.3.3"
-  }
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "ethereum",
+    "web3",
+    "anvil",
+    "testing"
+  ],
+  "author": "",
+  "license": "MIT"
 }
