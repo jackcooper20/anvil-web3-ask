@@ -105,4 +105,46 @@ describe('Anvil', () => {
             expect.any(Function)
         );
     });
+
+    test('reset calls the correct RPC method', async () => {
+        const forking = { jsonRpcUrl: 'http://localhost:8545', blockNumber: 12345 };
+        await anvil.reset(forking);
+    
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'anvil_reset', params: [forking] }),
+            expect.any(Function)
+        );
+    });
+    
+    test('setChainId calls the correct RPC method', async () => {
+        const chainId = 1337;
+        await anvil.setChainId(chainId);
+    
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'anvil_setChainId', params: [chainId] }),
+            expect.any(Function)
+        );
+    });
+    
+    test('setBalance calls the correct RPC method', async () => {
+        const account = '0x1234567890abcdef1234567890abcdef12345678';
+        const balance = '1000000000000000000';
+        await anvil.setBalance(account, balance);
+    
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'anvil_setBalance', params: [account, balance] }),
+            expect.any(Function)
+        );
+    });
+    
+    test('setCode calls the correct RPC method', async () => {
+        const address = '0x1234567890abcdef1234567890abcdef12345678';
+        const code = '0xabcdef';
+        await anvil.setCode(address, code);
+    
+        expect(mockProvider.send).toHaveBeenCalledWith(
+            expect.objectContaining({ method: 'anvil_setCode', params: [address, code] }),
+            expect.any(Function)
+        );
+    });
 });
