@@ -1,5 +1,11 @@
-import { ethers } from 'hardhat';
-import { BigNumber } from 'ethers';
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber, providers } from "ethers";
+import { ethers } from "hardhat";
+
+interface Recipient {
+  to: string;
+  amount: BigNumber | string | number;
+}
 
 /**
  * Sends ETH from one address to another
@@ -12,13 +18,15 @@ export async function sendEther(
   from: string,
   to: string,
   amount: BigNumber | string | number
-): Promise<ethers.providers.TransactionReceipt> {
+): Promise<providers.TransactionReceipt> {
   // Convert amount to BigNumber if it isn't already
   const value = BigNumber.from(amount);
 
   // Get the signer for the 'from' address
   const signers = await ethers.getSigners();
-  const signer = signers.find(s => s.address.toLowerCase() === from.toLowerCase());
+  const signer = signers.find((s: SignerWithAddress) => 
+    s.address.toLowerCase() === from.toLowerCase()
+  );
 
   if (!signer) {
     throw new Error(`No signer found for address: ${from}`);
@@ -32,7 +40,9 @@ export async function sendEther(
   // Check if sender has sufficient balance
   const balance = await ethers.provider.getBalance(from);
   if (balance.lt(value)) {
-    throw new Error(`Insufficient balance. Required: ${value.toString()}, Available: ${balance.toString()}`);
+    throw new Error(
+      `Insufficient balance. Required: ${value.toString()}, Available: ${balance.toString()}`
+    );
   }
 
   // Create and send the transaction
@@ -60,10 +70,12 @@ export async function sendEtherWithGas(
   amount: BigNumber | string | number,
   gasLimit?: number,
   gasPrice?: BigNumber | string | number
-): Promise<ethers.providers.TransactionReceipt> {
+): Promise<providers.TransactionReceipt> {
   const value = BigNumber.from(amount);
   const signers = await ethers.getSigners();
-  const signer = signers.find(s => s.address.toLowerCase() === from.toLowerCase());
+  const signer = signers.find((s: SignerWithAddress) => 
+    s.address.toLowerCase() === from.toLowerCase()
+  );
 
   if (!signer) {
     throw new Error(`No signer found for address: ${from}`);
@@ -75,10 +87,12 @@ export async function sendEtherWithGas(
 
   const balance = await ethers.provider.getBalance(from);
   if (balance.lt(value)) {
-    throw new Error(`Insufficient balance. Required: ${value.toString()}, Available: ${balance.toString()}`);
+    throw new Error(
+      `Insufficient balance. Required: ${value.toString()}, Available: ${balance.toString()}`
+    );
   }
 
-  const txParams: ethers.providers.TransactionRequest = {
+  const txParams: providers.TransactionRequest = {
     to,
     value,
   };
@@ -103,10 +117,12 @@ export async function sendEtherWithGas(
  */
 export async function sendEtherToMany(
   from: string,
-  recipients: Array<{ to: string; amount: BigNumber | string | number }>
-): Promise<ethers.providers.TransactionReceipt[]> {
+  recipients: Recipient[]
+): Promise<providers.TransactionReceipt[]> {
   const signers = await ethers.getSigners();
-  const signer = signers.find(s => s.address.toLowerCase() === from.toLowerCase());
+  const signer = signers.find((s: SignerWithAddress) => 
+    s.address.toLowerCase() === from.toLowerCase()
+  );
 
   if (!signer) {
     throw new Error(`No signer found for address: ${from}`);
@@ -114,19 +130,22 @@ export async function sendEtherToMany(
 
   // Calculate total amount needed
   const totalAmount = recipients.reduce(
-    (sum, recipient) => sum.add(BigNumber.from(recipient.amount)),
+    (sum: BigNumber, recipient: Recipient) => 
+      sum.add(BigNumber.from(recipient.amount)),
     BigNumber.from(0)
   );
 
   // Check total balance
   const balance = await ethers.provider.getBalance(from);
   if (balance.lt(totalAmount)) {
-    throw new Error(`Insufficient balance. Required: ${totalAmount.toString()}, Available: ${balance.toString()}`);
+    throw new Error(
+      `Insufficient balance. Required: ${totalAmount.toString()}, Available: ${balance.toString()}`
+    );
   }
 
   // Send transactions
   const receipts = await Promise.all(
-    recipients.map(async ({ to, amount }) => {
+    recipients.map(async ({ to, amount }: Recipient) => {
       if (!ethers.utils.isAddress(to)) {
         throw new Error(`Invalid recipient address: ${to}`);
       }
